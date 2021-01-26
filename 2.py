@@ -1,29 +1,78 @@
 """
-Реализовать класс Road (дорога), в котором определить атрибуты:
-length (длина), width (ширина).
-Значения данных атрибутов должны передаваться при создании экземпляра класса.
-Атрибуты сделать защищенными. Определить метод расчета массы асфальта,
-необходимого для покрытия всего дорожного полотна.
-Использовать формулу:
-длина * ширина * масса асфальта для покрытия одного кв метра дороги асфальтом,
-толщиной в 1 см * число см толщины полотна.
-Проверить работу метода.
+Реализовать проект расчета суммарного расхода ткани на производство одежды.
+Основная сущность (класс) этого проекта — одежда,
+которая может иметь определенное название.
+К типам одежды в этом проекте относятся пальто и костюм.
+У этих типов одежды существуют параметры: размер (для пальто) и рост (для костюма).
+Это могут быть обычные числа: V и H, соответственно.
 
-Например: 20м * 5000м * 25кг * 5см = 12500 т
+Для определения расхода ткани по каждому типу одежды использовать формулы:
+для пальто (V/6.5 + 0.5), для костюма (2 * H + 0.3).
+Проверить работу этих методов на реальных данных.
+
+Реализовать общий подсчет расхода ткани.
+Проверить на практике полученные на этом уроке знания:
+реализовать абстрактные классы для основных классов проекта,
+проверить на практике работу декоратора @property.
 """
 
-
-class Road:
-    def __init__(self, length, width):
-        self._length = length
-        self._width = width
-
-    def calculate_asphalt_weight(self, thickness):
-        return round(self._length * self._width * 25 * thickness / 1000)
+from abc import ABC, abstractmethod
 
 
-sample_st = Road(20, 5000)
-print(sample_st.calculate_asphalt_weight(5))
+class Clothing(ABC):
 
-tverskaya_st = Road(1.6 * 1000, 6 * 3.25)
-print(tverskaya_st.calculate_asphalt_weight(10))
+    @abstractmethod
+    def size(self):
+        pass
+
+    @property
+    @abstractmethod
+    def material_waste(self):
+        pass
+
+
+class Coat(Clothing):
+    def __init__(self, name, size):
+        self.type = 'coat'
+        self.name = name
+        self.__size = size
+
+    @property
+    def size(self):
+        return self.__size
+
+    @property
+    def material_waste(self):
+        return self.size/6.5 + 0.5
+
+
+class Suit(Clothing):
+    def __init__(self, name, height):
+        self.type = 'suit'
+        self.name = name
+        self.__size = height
+
+    @property
+    def size(self):
+        return self.__size
+
+    @property
+    def material_waste(self):
+        return 2 * self.size + 0.3
+
+
+
+def overall_material_waste(*kwargs):
+    waste = 0
+    for obj in kwargs:
+        waste += obj.material_waste
+    return waste
+
+
+coat = Coat('Пальто для коней', 52)
+print(coat.material_waste)
+
+suit = Suit('Костюм прозрачный', 180)
+print(suit.material_waste)
+
+print(overall_material_waste(coat, suit))

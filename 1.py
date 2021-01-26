@@ -1,55 +1,52 @@
 """
-Создать класс TrafficLight (светофор) и определить у него один атрибут color (цвет)
-и метод running (запуск). Атрибут реализовать как приватный.
-В рамках метода реализовать переключение светофора в режимы:
-красный, желтый, зеленый.
-Продолжительность первого состояния (красный) составляет 7 секунд,
-второго (желтый) — 2 секунды, третьего (зеленый) — на ваше усмотрение.
-Переключение между режимами должно осуществляться только в указанном порядке (красный, желтый, зеленый).
-Проверить работу примера, создав экземпляр и вызвав описанный метод.
+Реализовать класс Matrix (матрица).
+Обеспечить перегрузку конструктора класса (метод __init__()),
+который должен принимать данные (список списков) для формирования матрицы.
 
-Задачу можно усложнить, реализовав проверку порядка режимов,
-и при его нарушении выводить соответствующее сообщение и завершать скрипт.
+Подсказка: матрица — система некоторых математических величин,
+расположенных в виде прямоугольной схемы.
+
+Примеры матриц вы найдете в методичке.
+
+Следующий шаг — реализовать перегрузку метода __str__()
+для вывода матрицы в привычном виде.
+
+Далее реализовать перегрузку метода __add__() для реализации операции
+сложения двух объектов класса Matrix (двух матриц).
+Результатом сложения должна быть новая матрица.
+
+Подсказка: сложение элементов матриц выполнять поэлементно —
+первый элемент первой строки первой матрицы складываем с первым
+элементом первой строки второй матрицы и т.д.
 """
 
-from enum import Enum
-from time import sleep
-from sys import exit
+
+class Matrix:
+    def __init__(self, *kwargs):
+        self.matrix = []
+        self.matrix.extend(kwargs)
+
+    def __str__(self):
+        result = ''
+        for row in self.matrix:
+            for col in row:
+                result += f'{col} '
+            result += '\n'
+        return result
+
+    def __add__(self, other):
+        if not isinstance(other, Matrix):
+            raise TypeError('operands must be of Matrix type')
+        sum_rows = []
+        for row_index, a_row in enumerate(self.matrix):
+            b_row = other.matrix[row_index]
+            sum_row = [a_col + b_row[col_index] for col_index, a_col in enumerate(a_row)]
+            sum_rows.append(sum_row)
+        return Matrix(*sum_rows)
 
 
-class TrafficLightModes(Enum):
-    STOP = {'color': 'red', 'duration': 7, 'order': 0}
-    STEADY = {'color': 'yellow', 'duration': 2, 'order': 1}
-    START = {'color': 'green', 'duration': 10, 'order': 2}
+m = Matrix([1, 2, 3, 4], [2, 3, 4, 5])
+m2 = Matrix([-1, -2, -3, -4], [-2, -3, -4, -5])
+print(m, m2)
 
-
-class TrafficLight:
-    __color = (
-        TrafficLightModes.STOP,
-        TrafficLightModes.STEADY,
-        TrafficLightModes.START,
-    )
-
-    def running(self, break_traffic_light=False):
-        if break_traffic_light:  # ломаем светофор
-            self.__color = (
-                TrafficLightModes.START,
-                TrafficLightModes.STOP,
-                TrafficLightModes.STEADY,
-            )
-        self.check_colors_order()  # проверяем порядок огней
-        for color in self.__color:
-            print(color.value.get('color'))
-            sleep(color.value.get('duration'))  # пауза
-
-    def check_colors_order(self):
-        current_order = [color.value.get('order') for color in self.__color]
-        if current_order != sorted(current_order):
-            print('Traffic light is broken!')
-            exit()
-
-
-tl = TrafficLight()
-
-tl.running()
-tl.running(break_traffic_light=True)
+print(m + m2)
