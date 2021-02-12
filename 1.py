@@ -1,52 +1,58 @@
 """
-Реализовать класс Matrix (матрица).
-Обеспечить перегрузку конструктора класса (метод __init__()),
-который должен принимать данные (список списков) для формирования матрицы.
-
-Подсказка: матрица — система некоторых математических величин,
-расположенных в виде прямоугольной схемы.
-
-Примеры матриц вы найдете в методичке.
-
-Следующий шаг — реализовать перегрузку метода __str__()
-для вывода матрицы в привычном виде.
-
-Далее реализовать перегрузку метода __add__() для реализации операции
-сложения двух объектов класса Matrix (двух матриц).
-Результатом сложения должна быть новая матрица.
-
-Подсказка: сложение элементов матриц выполнять поэлементно —
-первый элемент первой строки первой матрицы складываем с первым
-элементом первой строки второй матрицы и т.д.
+Реализовать класс «Дата», функция-конструктор которого должна принимать дату в виде строки формата «день-месяц-год».
+В рамках класса реализовать два метода.
+Первый, с декоратором @classmethod, должен извлекать число, месяц, год и преобразовывать их тип к типу «Число».
+Второй, с декоратором @staticmethod, должен проводить валидацию числа, месяца и года (например, месяц — от 1 до 12).
+Проверить работу полученной структуры на реальных данных.
 """
+import re
+from exeptions_1 import InvalidDay, InvalidMonth, InvalidYear
 
 
-class Matrix:
-    def __init__(self, *kwargs):
-        self.matrix = []
-        self.matrix.extend(kwargs)
+class Date:
+    def __init__(self, date_string: str):
+        day, month, year = Date.parse(date_string)
+        Date.validate(day, month, year)
+        self._day = day
+        self._month = month
+        self._year = year
 
-    def __str__(self):
-        result = ''
-        for row in self.matrix:
-            for col in row:
-                result += f'{col} '
-            result += '\n'
-        return result
+    @classmethod
+    def parse(cls, date_string: str):
+        return [*map(int, re.split('\D', date_string))]
 
-    def __add__(self, other):
-        if not isinstance(other, Matrix):
-            raise TypeError('operands must be of Matrix type')
-        sum_rows = []
-        for row_index, a_row in enumerate(self.matrix):
-            b_row = other.matrix[row_index]
-            sum_row = [a_col + b_row[col_index] for col_index, a_col in enumerate(a_row)]
-            sum_rows.append(sum_row)
-        return Matrix(*sum_rows)
+    @staticmethod
+    def validate(day: int, month: int, year: int):
+        if day < 1 or day > 31:
+            raise InvalidDay
+
+        if month < 1 or month > 12:
+            raise InvalidMonth
+
+        if year < 1:
+            raise InvalidYear
+
+    @property
+    def day(self):
+        return self._day
+
+    @property
+    def month(self):
+        return self._month
+
+    @property
+    def year(self):
+        return self._year
 
 
-m = Matrix([1, 2, 3, 4], [2, 3, 4, 5])
-m2 = Matrix([-1, -2, -3, -4], [-2, -3, -4, -5])
-print(m, m2)
 
-print(m + m2)
+try:
+    today = Date('5-2-2021')
+except InvalidDay:
+    print('Не бывает таких дней')
+except InvalidMonth:
+    print('Нет таких месяцев')
+except InvalidYear:
+    print('Работаем только по нашей эре')
+else:
+    print(f'День: {today.day}, Месяц: {today.month}, Год: {today.year}')
